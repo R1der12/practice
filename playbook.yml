@@ -1,0 +1,37 @@
+- name: Deploy Flask + Postgres + Nginx app
+  hosts: localhost
+  become: true
+
+  vars:
+    project_dir: /opt/flask_project
+
+  tasks:
+    - name: Проверить, установлен ли Docker, Docker Compose
+      command: docker --version
+      #command: docker-compose-plugin --version
+      register: docker_check
+      ignore_errors: true
+
+    - name: Установить Docker (если не установлен)
+      apt:
+        name: docker.io
+        #name: docker-compose-plugin
+        state: present
+        update_cache: yes
+      when: docker_check.rc != 0
+
+    - name: Клонировать проект
+      git:
+        repo: 'https://github.com/R1der12/practice.git'
+        dest: "{{ project_dir }}"
+
+    - name: Копировать .env файл
+      copy:
+        src: .env
+        dest: "{{ project_dir }}/.env"
+
+    - name: Собрать и запустить контейнеры
+      shell: |
+        docker compose up --build -d
+      args:
+        chdir: "{{ project_dir }}"
