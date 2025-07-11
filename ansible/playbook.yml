@@ -1,0 +1,13 @@
+- name: Deploy Flask app locally
+  hosts: localhost
+  become: true
+  vars:
+    source_dir: "/home/myflaskapp"
+    dest_dir: "/home/myflaskapp_test"
+    certs_dir: "/home/myflaskapp_test/nginx/certs"
+
+  roles:
+    #- setup
+    - copy_app
+    - ssl
+    - docker_compose

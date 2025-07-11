@@ -1,0 +1,10 @@
+- name: Install required packages
+  apt:
+    name: [docker.io, python3-pip, openssl]
+    update_cache: yes
+
+- name: Install docker compose plugin
+  shell: |
+    pip3 install docker-compose
+  args:
+    creates: /usr/local/bin/docker-compose
