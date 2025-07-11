@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: practice-db
+    env_file: .env
+    volumes:
+      - ~/postgres-data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "5433:5432"
+
+  flask:
+    build: .
+    container_name: flask-app
+    env_file: .env
+    working_dir: /app
+    command: flask run --host=0.0.0.0 --port=5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs:/etc/nginx/certs:ro
+
+    depends_on:
+      - flask
+
+volumes:
+  pgdata:
+    driver: local
